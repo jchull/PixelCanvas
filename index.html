@@ -28,8 +28,8 @@
 <div class="main-container">
     <div class="image-container">
         <!-- TODO: style canvases, set width/height with js on load, should be full height-->
-        <canvas id="c" width="400" height="600" style="position: relative; left: 0; top: 0; z-index: 0;"></canvas>
-        <canvas id="grid" width="400" height="600"
+        <canvas id="c" width="600" height="600" style="position: relative; left: 0; top: 0; z-index: 0;"></canvas>
+        <canvas id="grid" width="600" height="600"
                 style="position: relative; left: 0; top: -602px; z-index: 1;background:transparent;"></canvas>
     </div>
 
@@ -39,8 +39,8 @@
     </div>
     <div class="toolbar-container">
         <button id="reset">Reset</button>
-        <button id="pixelate">Pixelate</button>
 
+        Palette
         <input id="rIn" class="rgbIn" value="255"/>
         <input id="gIn" class="rgbIn" value="255"/>
         <input id="bIn" class="rgbIn" value="255"/>
@@ -58,6 +58,27 @@
             <li style="background-color: rgb(255,215,0);"></li>
             <li style="background-color: rgb(255,0,255);"></li>
         </ul>
+        <div class="image-loader">
+            Image Tools
+            <input id="image-upload">
+            <button id="addImage">Add Image</button>
+            <button id="rotateImageCW">Rotate</button>
+            <button id="fitImage">Fit</button>
+            <button id="scaleImage">Scale</button>
+            <button id="moveImage">Move</button>
+
+        </div>
+        <div class="pixel-tools">
+            Pixel Tools
+            <button id="pixelate">Pixelate</button>
+            <button id="fillMatrix">Fill Matrix</button>
+            <input id="canvasX" value="600"/>
+            <input id="canvasY" value="600"/>
+    <input id="matrixX" value="16">
+<input id="matrixY" value="16">
+
+
+</div>
     </div>
 </div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>

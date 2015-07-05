@@ -5,12 +5,26 @@ var isDrawing;
 
 var gridWidth = 1;
 var gridHeight = 1;
-var pixelMatrixWidth = 10;
-var pixelMatrixHeight = 15;
+var pixelMatrixWidth = 16;
+var pixelMatrixHeight = 16;
 var pencilWidth = 1.0; //changes in ready
 var cellWidth = 1;
 var cellHeight = 1;
-var pixelMatrix = [];
+var pixelMatrix = new Array(pixelMatrixWidth);
+
+// need this for now since we are using static memory area
+var numberOfAnimationFrames = 10;
+
+// Loading images onto canvas
+var image1 = null;
+
+
+for(var x=0; x< pixelMatrixWidth; x++){
+    pixelMatrix[x] = new Array(pixelMatrixHeight);
+    for(var y=0; y<pixelMatrixHeight; y++){
+        pixelMatrix[x][y] = new Array(3);
+    }
+}
 var startX = 0;
 var startY = 0;
 
@@ -18,8 +32,16 @@ var startY = 0;
 $(document).ready(function () {
     gridWidth = el.width;
     gridHeight = el.height;
-    cellWidth = gridWidth / pixelMatrixWidth;
-    cellHeight = gridHeight / pixelMatrixHeight;
+    cellWidth = Math.floor(gridWidth / pixelMatrixWidth);
+    cellHeight = Math.floor(gridHeight / pixelMatrixHeight);
+
+    //resize canvas and grid to be a multiple of cellWidth/height
+    el.width = cellWidth * pixelMatrixWidth;
+    el.height = cellHeight * pixelMatrixHeight;
+    var grid = document.getElementById('grid');
+    grid.width = el.width;
+    grid.height = el.height;
+    grid.style.top = ((-1 * grid.height)-2)+'px';
 
     pencilWidth = (cellWidth < cellHeight ? cellWidth : cellHeight);
 
@@ -30,13 +52,13 @@ $(document).ready(function () {
     gctx.lineWidth = 1.0;
     gctx.strokeStyle = '#FFF';
     for (var x = cellWidth; x < gridWidth; x += cellWidth) {
-        gctx.moveTo(x, 0);
-        gctx.lineTo(x, gridHeight);
+        gctx.moveTo(x + 0.5, 0);
+        gctx.lineTo(x + 0.5, gridHeight);
     }
 
     for (var y = cellHeight; y < gridHeight; y += cellHeight) {
-        gctx.moveTo(0, y);
-        gctx.lineTo(gridWidth, y);
+        gctx.moveTo(0, y+0.5);
+        gctx.lineTo(gridWidth, y+0.5);
     }
     gctx.stroke();
     console.log("Done drawing grid");
@@ -86,6 +108,8 @@ colorCellAtCanvasLocationWithColor = function (x, y, r, g, b) {
     ctx.beginPath();
     ctx.rect(x2 * cellWidth, y2 * cellHeight, cellWidth, cellHeight);
     ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+    console.log("coloring cell at: " + x + ", " + y + " color: " + ctx.fillStyle);
+
     ctx.fill();
 }
 
@@ -104,6 +128,10 @@ $('#reset').on('click', function () {
 
 $('#pixelate').on('click', function () {
     pixelate();
+});
+
+$('#addImage').on('click', function () {
+    addImage();
 });
 
 
@@ -138,10 +166,12 @@ pixelate = function () {
 
                 }
             }
-            if (count > (emptyValues * .6)) {
-                cellR = cellR / count;
-                cellG = cellG / count;
-                cellB = cellB / count;
+            emptyValues = emptyValues * 0.8; // seems to be a good value with the limited testing I have done
+            if (count > emptyValues) {
+                count = count + emptyValues;
+                cellR = Math.floor(cellR / count);
+                cellG = Math.floor(cellG / count);
+                cellB = Math.floor(cellB / count);
 
                 console.log("cell (" + x1 + "," + y1 + ") = " + "(" + cellR + "," + cellG + "," + cellB + ")" + count + "/" + emptyValues);
 
@@ -163,18 +193,54 @@ $('.palette li').on('click', function (e) {
     document.getElementById('bIn').value = style.substring(style.indexOf(',') + 1).trim();
 })
 
-/*$('#fillMatrix').on('click',  function() {
- var imgd = ctx.getImageData(0, 0, gridWidth, gridHeight);
- var pix = imgd.data;
- for (var x = 0; x < pixelMatrixWidth; x++) {
- for (var y = 0; y < pixelMatrixHeight; y++) {
- var i = (x*4*cellWidth)+(y*4*cellHeight)*imgd.width;
- // TODO: this needs to just grab the first/center? pixel in each cell of the pixelMatrix
- pixelMatrix[x][gridHeight-y]=[pix[i], pix[i+1], pix[i+2]];
- console.log(i+",");
- }
- }
- });*/
+$('#fillMatrix').on('click', function () {
+    var imgd = ctx.getImageData(0, 0, gridWidth, gridHeight);
+    var pix = imgd.data;
+    for (var x = 0; x < pixelMatrixWidth; x++) {
+        for (var y = 0; y < pixelMatrixHeight; y++) {
+            var pos = (y * imgd.width * 4 * cellHeight) + (x * 4 * cellWidth);
+            pixelMatrix[x][y][0] = pix[pos];
+            pixelMatrix[x][y][1] = pix[pos+1];
+            pixelMatrix[x][y][2] = pix[pos+2];
+
+        }
+    }
+    exportMatrix();
+});
+// = { brightness, delay, {px1...px150},
+
+exportMatrix = function(){
+    var structString = 'PROGMEM = {';
+    //Iterate to duplicate frames for now, later frames will differ, and hopefully so will numberOfFrames
+    for(var f = 0; f<numberOfAnimationFrames; f++){
+        structString += '50, 500, {'
+    for (var x = 0; x < pixelMatrixWidth; x++) {
+        for (var y = 0; y < pixelMatrixHeight; y++) {
+            var z = y;
+            if(x%2==0)
+                z = pixelMatrixHeight-1-y;
+            structString += pixelMatrix[x][z] + ', ';
+        }
+    }
+        structString = structString.substring(0,structString.length-2);
+        structString += '},';
+
+    }
+    structString = structString.substring(0,structString.length-1);
+
+    structString += '}';
+    console.log(structString);
+}
+
+
+addImage = function() {
+    var image = new Image();
+    image.src = "img/2000px-Flag_of_Colorado-square.png";
+    image.addEventListener('load', function(){     ctx.drawImage(image, 0, 0, 600, 600);
+    });
+}
+
+
 
 
 
