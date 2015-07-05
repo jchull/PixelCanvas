@@ -34,9 +34,7 @@
     </div>
 
     <!-- TODO: if screen is narrow (phone) then the data and toolbar containers should be drawers -->
-    <div class="data-container">
 
-    </div>
     <div class="toolbar-container">
         <button id="reset">Reset</button>
 
@@ -60,12 +58,12 @@
         </ul>
         <div class="image-loader">
             Image Tools
-            <input id="image-upload">
-            <button id="addImage">Add Image</button>
-            <button id="rotateImageCW">Rotate</button>
-            <button id="fitImage">Fit</button>
-            <button id="scaleImage">Scale</button>
-            <button id="moveImage">Move</button>
+            <input id="image-upload" disabled>
+            <button id="addImage">Add Default Image</button>
+          <!--  <button id="rotateImageCW" disabled>Rotate</button>
+            <button id="fitImage" disabled>Fit</button>
+            <button id="scaleImage" disabled>Scale</button>
+            <button id="moveImage" disabled>Move</button>-->
 
         </div>
         <div class="pixel-tools">
@@ -79,6 +77,9 @@
 
 
 </div>
+    </div>
+    <div id="output" class="code">
+        C code will show here after matrix is filled
     </div>
 </div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>

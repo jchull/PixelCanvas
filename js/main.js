@@ -230,13 +230,15 @@ exportMatrix = function(){
 
     structString += '}';
     console.log(structString);
+    document.getElementById('output').innerHTML = structString;
 }
 
 
 addImage = function() {
     var image = new Image();
     image.src = "img/2000px-Flag_of_Colorado-square.png";
-    image.addEventListener('load', function(){     ctx.drawImage(image, 0, 0, 600, 600);
+    image.addEventListener('load', function(){
+        ctx.drawImage(image, 0, 0, 600, 600);
     });
 }
 
